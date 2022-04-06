@@ -1,16 +1,35 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import Lion from '../assets/Lion.png';
+import Rhino from '../assets/Rhino.png';
+import Elephant from '../assets/Elephant.png';
+import Zebra from '../assets/Zebra.png';
+import Gnu from '../assets/Gnu.png';
+import Giraffe from '../assets/Giraffe.png';
+import { computed } from '@vue/reactivity';
 
-defineProps<{
+const props = defineProps<{
   type: string,
   player: number
-}>()
+}>();
 
-const count = ref(0)
+function getSrc(name: string) {
+    return {
+        "Lion": Lion,
+        "Rhino": Rhino,
+        "Elephant": Elephant,
+        "Zebra": Zebra,
+        "Gnu": Gnu,
+        "Giraffe": Giraffe,
+    }[name];
+}
+
+const opponent = props.player == 2;
+console.log(opponent);
+
 </script>
 
 <template>
-  <div class="card">
+  <div class="card bgZoom" :class="{ upsideDown: opponent }" :style="{ backgroundImage: `url(${getSrc(type)})` }">
     <div class="centerContent">
       <h1>{{ type }}</h1>
       <h1>{{ player }}</h1>
@@ -29,6 +48,20 @@ $cardSize: 150px;
   border: solid black 2px;
   display: inline-flex;
   padding: 30px;
+}
+
+.bgZoom {
+    background-size: contain;
+}
+
+/** this flips everything upside down */
+.upsideDown {
+    transform: scaleY(-1);
+}
+
+/**This flips the content (except bg img) back */
+.upsideDown > *{
+    transform: scaleY(-1);
 }
 
 .centerContent {

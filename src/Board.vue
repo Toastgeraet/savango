@@ -23,7 +23,7 @@ function get_random<T>(array: Array<T>): T {
  * elephant uu dd ll rr
  * lion u d l r ur ul dr dl
  * rhino uu dd ll rr ur ul dr dl
- * giraffe urur ulul drdr dldl
+ * giraffe u urur ulul drdr dldl
  * 
  * gazelle
  * 
@@ -60,7 +60,7 @@ const boardSetup: ({ isOpponent: boolean, type: CardType } | null)[][] = [
     },
     {
         isOpponent: true,
-        type: CardTypes.Elephant,
+        type: CardTypes.Giraffe,
     }],
     [{
         isOpponent: true,
@@ -112,7 +112,7 @@ function getRandomType(): string {
         <Card
             v-for="card in row"
             :player="card == null ? 0 : (card?.isOpponent ? 2 : 1)"
-            :type="card?.type ?? 'Empty'"
+            :type="card?.type ?? 'Empty'"            
         ></Card>
     </div>
 </template>
