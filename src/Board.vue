@@ -15,6 +15,13 @@ function get_random<T>(array: Array<T>): T {
 
 /**
  * 
+ * @param boardPos boardPos is between 0 and 15
+ */
+function onTapCard(boardPos: number) {
+}
+
+/**
+ * 
  * z     g
  * e l r g
  * 
@@ -40,6 +47,9 @@ enum CardTypes {
     Elephant = "Elephant",
     Zebra = "Zebra",
 }
+
+let selectedCard: number;
+
 
 /**
  * defined from 0 to 15 
@@ -108,11 +118,14 @@ function getRandomType(): string {
 </script>
 
 <template>
-    <div v-for="row in boardSetup">
+    <div v-for="(row, r) in boardSetup">
         <Card
-            v-for="card in row"
+            v-for="(card, c) in row"
             :player="card == null ? 0 : (card?.isOpponent ? 2 : 1)"
-            :type="card?.type ?? 'Empty'"            
+            :type="card?.type ?? 'Empty'"  
+            
+            v-touch:tap="onTapCard(r*4 + c)"
+            
         ></Card>
     </div>
 </template>

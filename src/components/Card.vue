@@ -23,13 +23,10 @@ function getSrc(name: string) {
     }[name];
 }
 
-const opponent = props.player == 2;
-console.log(opponent);
-
 </script>
 
 <template>
-  <div class="card bgZoom" :class="{ upsideDown: opponent }" :style="{ backgroundImage: `url(${getSrc(type)})` }">
+  <div class="card bg" :class="{ upsideDown: player == 2, empty: player == 0, own: player == 1 }" :style="{ backgroundImage: `url(${getSrc(type)})` }">
     <div class="centerContent">
       <h1>{{ type }}</h1>
       <h1>{{ player }}</h1>
@@ -50,13 +47,22 @@ $cardSize: 150px;
   padding: 30px;
 }
 
-.bgZoom {
-    background-size: contain;
+.bg {
+    background-size: contain;    
+}
+
+.own {
+    background-color: rgb(121, 128, 228);
 }
 
 /** this flips everything upside down */
 .upsideDown {
     transform: scaleY(-1);
+    background-color: rgb(231, 85, 85);
+}
+
+.empty {
+    background-color: rgb(145, 165, 113);
 }
 
 /**This flips the content (except bg img) back */
