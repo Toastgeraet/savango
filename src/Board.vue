@@ -3,14 +3,11 @@ import { reactive, ref } from '@vue/reactivity';
 import Card from './components/Card.vue';
 import { CardDef, CardType, CardTypes, Pos } from './helpers/helpers';
 
-/**
- * @param boardPos boardPos is between 0 and 15
- */
 function onTapCard(boardPos: [number, number], owner: number) {
     return function (direction: any, event: any) {
         console.log(direction, event);
         console.log(...boardPos);
-        // do something ~
+        
         if (currentPlayer.value == owner)
             selectedCard.splice(0, 2, ...boardPos);
 
@@ -27,20 +24,6 @@ function isSelected(boardPos: [number, number]) {
     return [...selectedCard].every((num, idx) => boardPos[idx] == num);
 }
 
-/**
- * z     g
- * e l r g
- * 
- * zebra ur ul dr dl
- * gnu u d l r
- * elephant uu dd ll rr
- * lion u d l r ur ul dr dl
- * rhino uu dd ll rr ur ul dr dl
- * giraffe u urur ulul drdr dldl
- * 
- * gazelle
- */
-
 function getCardOwner(card: CardDef) {
     return card.type == CardTypes.Empty ? 0 : (card?.isOpponent ? 2 : 1);
 }
@@ -56,11 +39,6 @@ function getCardMoves(card: CardDef, boardPos: Pos) {
     }
 }
 
-
-/**
- * defined from 0 to 15 
- * boardCells are numbered left to right, top to bottom
- */
 const boardSetup: (CardDef)[][] = [
     [new CardDef(CardTypes.Elephant, true),
     new CardDef(CardTypes.Lion, true),
