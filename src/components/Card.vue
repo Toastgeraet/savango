@@ -5,16 +5,14 @@ import Elephant from "../assets/Elephant.png";
 import Zebra from "../assets/Zebra.png";
 import Gnu from "../assets/Gnu.png";
 import Giraffe from "../assets/Giraffe.png";
-import { PropType } from "vue";
+import { Pos } from "../helpers/helpers";
 
-const props = defineProps({
-    type: String,
-    player: Number,
-    selected: Boolean,
-    pos: {
-        type: Object as PropType<[Number, Number]>,
-    },
-});
+const props = defineProps<{
+    type: string,
+    player: number,
+    selected: boolean,
+    pos: Pos
+    }>();
 
 function getSrc(name: string) {
     return {

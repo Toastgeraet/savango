@@ -4,6 +4,8 @@ interface Position {
     y: number
 }
 
+type Pos = [number, number];
+
 interface CardDef {
     isOpponent?: boolean,
     type: CardType,
@@ -20,4 +22,4 @@ enum CardTypes {
     Empty = "Empty"
 }
 
-export { Position, CardDef, CardType, CardTypes }
+export { Position, Pos, CardDef, CardType, CardTypes }

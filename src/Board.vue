@@ -2,21 +2,8 @@
 import { reactive, ref } from '@vue/reactivity';
 import Card from './components/Card.vue';
 import { CardDef, CardType, CardTypes } from './helpers/helpers';
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-
-function getRandomInt(min: number, max: number): number {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function get_random<T>(array: Array<T>): T {
-    return array[Math.floor((Math.random() * array.length))];
-}
 
 /**
- * 
  * @param boardPos boardPos is between 0 and 15
  */
 function onTapCard(boardPos: [number, number], owner: number) {
@@ -41,7 +28,6 @@ function isSelected(boardPos: [number, number]) {
 }
 
 /**
- * 
  * z     g
  * e l r g
  * 
@@ -53,7 +39,6 @@ function isSelected(boardPos: [number, number]) {
  * giraffe u urur ulul drdr dldl
  * 
  * gazelle
- * 
  */
 
 function getOwner(card: CardDef) {
