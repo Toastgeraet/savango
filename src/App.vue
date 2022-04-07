@@ -18,9 +18,4 @@ import Board from './Board.vue';
   margin-top: 30px;
   margin-left: 30px;
 }
-
-.j-left {
-  display: flex;
-  justify-content: start;
-}
 </style>
