@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { reactive, ref } from '@vue/reactivity';
 import Card from './components/Card.vue';
+import { CardDef, CardType, CardTypes } from './helpers/helpers';
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 
@@ -17,7 +19,25 @@ function get_random<T>(array: Array<T>): T {
  * 
  * @param boardPos boardPos is between 0 and 15
  */
-function onTapCard(boardPos: number) {
+function onTapCard(boardPos: [number, number], owner: number) {
+    return function (direction: any, event: any) {
+        console.log(direction, event);
+        console.log(...boardPos);
+        // do something ~
+        if (currentPlayer.value == owner)
+            selectedCard.splice(0, 2, ...boardPos);
+
+        // console.log([...selectedCard].every((num, idx) => boardPos[idx] == num), boardPos);
+
+    };
+}
+
+const currentPlayer = ref(1);
+
+const selectedCard = reactive([-1, -1]);
+
+function isSelected(boardPos: [number, number]) {
+    return [...selectedCard].every((num, idx) => boardPos[idx] == num);
 }
 
 /**
@@ -36,26 +56,15 @@ function onTapCard(boardPos: number) {
  * 
  */
 
-const types = ["Lion", "Rhino", "Giraffe", "Gnu", "Elephant", "Zebra"];
-
-type CardType = "Lion" | "Rhino" | "Giraffe" | "Gnu" | "Elephant" | "Zebra"
-enum CardTypes {
-    Lion = "Lion",
-    Rhino = "Rhino",
-    Giraffe = "Giraffe",
-    Gnu = "Gnu",
-    Elephant = "Elephant",
-    Zebra = "Zebra",
+function getOwner(card: CardDef) {
+    return card.type == CardTypes.Empty ? 0 : (card?.isOpponent ? 2 : 1);
 }
-
-let selectedCard: number;
-
 
 /**
  * defined from 0 to 15 
  * boardCells are numbered left to right, top to bottom
  */
-const boardSetup: ({ isOpponent: boolean, type: CardType } | null)[][] = [
+const boardSetup: (CardDef)[][] = [
     [{
         isOpponent: true,
         type: CardTypes.Elephant,
@@ -76,8 +85,12 @@ const boardSetup: ({ isOpponent: boolean, type: CardType } | null)[][] = [
         isOpponent: true,
         type: CardTypes.Zebra,
     },
-        null,
-        null,
+    {
+        type: CardTypes.Empty
+    },
+    {
+        type: CardTypes.Empty
+    },
     {
         isOpponent: true,
         type: CardTypes.Gnu,
@@ -86,8 +99,12 @@ const boardSetup: ({ isOpponent: boolean, type: CardType } | null)[][] = [
         isOpponent: false,
         type: CardTypes.Zebra,
     },
-        null,
-        null,
+    {
+        type: CardTypes.Empty
+    },
+    {
+        type: CardTypes.Empty
+    },
     {
         isOpponent: false,
         type: CardTypes.Gnu,
@@ -110,22 +127,17 @@ const boardSetup: ({ isOpponent: boolean, type: CardType } | null)[][] = [
     }],
 ]
 
-function getRandomType(): string {
-    return get_random(types);
-}
-
-
 </script>
 
 <template>
     <div v-for="(row, r) in boardSetup">
         <Card
             v-for="(card, c) in row"
-            :player="card == null ? 0 : (card?.isOpponent ? 2 : 1)"
-            :type="card?.type ?? 'Empty'"  
-            
-            v-touch:tap="onTapCard(r*4 + c)"
-            
+            :player="getOwner(card)"
+            :type="card?.type ?? 'Empty'"
+            :selected="isSelected([c, r])"
+            :pos="[c, r]"
+            v-touch:tap="onTapCard([c, r], getOwner(card))"
         ></Card>
     </div>
 </template>
