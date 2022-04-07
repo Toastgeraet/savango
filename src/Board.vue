@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from '@vue/reactivity';
 import Card from './components/Card.vue';
-import { CardDef, CardType, CardTypes } from './helpers/helpers';
+import { CardDef, CardType, CardTypes, Pos } from './helpers/helpers';
 
 /**
  * @param boardPos boardPos is between 0 and 15
@@ -41,76 +41,45 @@ function isSelected(boardPos: [number, number]) {
  * gazelle
  */
 
-function getOwner(card: CardDef) {
+function getCardOwner(card: CardDef) {
     return card.type == CardTypes.Empty ? 0 : (card?.isOpponent ? 2 : 1);
 }
+
+function getCardMoves(card: CardDef, boardPos: Pos) {
+    switch (card.type) {
+        case CardTypes.Elephant:
+
+            break;
+
+        default:
+            break;
+    }
+}
+
 
 /**
  * defined from 0 to 15 
  * boardCells are numbered left to right, top to bottom
  */
 const boardSetup: (CardDef)[][] = [
-    [{
-        isOpponent: true,
-        type: CardTypes.Elephant,
-    },
-    {
-        isOpponent: true,
-        type: CardTypes.Lion,
-    },
-    {
-        isOpponent: true,
-        type: CardTypes.Rhino,
-    },
-    {
-        isOpponent: true,
-        type: CardTypes.Giraffe,
-    }],
-    [{
-        isOpponent: true,
-        type: CardTypes.Zebra,
-    },
-    {
-        type: CardTypes.Empty
-    },
-    {
-        type: CardTypes.Empty
-    },
-    {
-        isOpponent: true,
-        type: CardTypes.Gnu,
-    }],
-    [{
-        isOpponent: false,
-        type: CardTypes.Zebra,
-    },
-    {
-        type: CardTypes.Empty
-    },
-    {
-        type: CardTypes.Empty
-    },
-    {
-        isOpponent: false,
-        type: CardTypes.Gnu,
-    }],
-    [{
-        isOpponent: false,
-        type: CardTypes.Elephant,
-    },
-    {
-        isOpponent: false,
-        type: CardTypes.Lion,
-    },
-    {
-        isOpponent: false,
-        type: CardTypes.Rhino,
-    },
-    {
-        isOpponent: false,
-        type: CardTypes.Giraffe,
-    }],
+    [new CardDef(CardTypes.Elephant, true),
+    new CardDef(CardTypes.Lion, true),
+    new CardDef(CardTypes.Rhino, true),
+    new CardDef(CardTypes.Giraffe, true)],
+    [new CardDef(CardTypes.Zebra, true),
+    new CardDef(CardTypes.Empty),
+    new CardDef(CardTypes.Empty),
+    new CardDef(CardTypes.Gnu, true)],
+    [new CardDef(CardTypes.Zebra, false),
+    new CardDef(CardTypes.Empty),
+    new CardDef(CardTypes.Empty),
+    new CardDef(CardTypes.Gnu, false)],
+    [new CardDef(CardTypes.Elephant, false),
+    new CardDef(CardTypes.Lion, false),
+    new CardDef(CardTypes.Rhino, false),
+    new CardDef(CardTypes.Giraffe, false)],
 ]
+
 
 </script>
 
@@ -118,11 +87,11 @@ const boardSetup: (CardDef)[][] = [
     <div v-for="(row, r) in boardSetup">
         <Card
             v-for="(card, c) in row"
-            :player="getOwner(card)"
+            :player="getCardOwner(card)"
             :type="card?.type ?? 'Empty'"
             :selected="isSelected([c, r])"
             :pos="[c, r]"
-            v-touch:tap="onTapCard([c, r], getOwner(card))"
+            v-touch:tap="onTapCard([c, r], getCardOwner(card))"
         ></Card>
     </div>
 </template>
