@@ -11,6 +11,7 @@ const props = defineProps<{
     type: string,
     player: number,
     selected: boolean,
+    target: boolean,
     pos: Pos
     }>();
 
@@ -34,6 +35,7 @@ function getSrc(name: string) {
             empty: player == 0,
             own: player == 1,
             selected: selected,
+            target: target
         }"
         :style="{ backgroundImage: `url(${getSrc(type)})` }"
     >
@@ -56,11 +58,18 @@ $cardSize: 200px;
     display: inline-flex;
     padding: 30px;
     box-sizing: border-box;
+    cursor: pointer;
 }
 
 .selected {
     border-width: 10px;
     border-color: rgb(22, 194, 206);
+}
+
+.target {
+    border-width: 10px;
+    border-color: rgb(206, 22, 206);
+    border-style: dashed;
 }
 
 .bg {

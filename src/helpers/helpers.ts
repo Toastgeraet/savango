@@ -6,6 +6,10 @@ interface Position {
 
 type Pos = [number, number];
 
+function Add(...p: Pos[]): Pos {
+    return p.reduce((sum, p) => [sum[0]+p[0], sum[1]+p[1]]);
+}
+
 class CardDef {
     isOpponent?: boolean;
     type: CardType;
@@ -56,6 +60,10 @@ class CardDef {
                     [-2, 0],
                     [0, 2],
                     [0, -2],
+                    [1, 0],
+                    [-1, 0],
+                    [0, 1],
+                    [0, -1],
                     [1, 1],
                     [-1, 1],
                     [1, -1],
@@ -64,7 +72,7 @@ class CardDef {
                 break;
             case CardTypes.Giraffe:
                 moves = [
-                    [0, 1],
+                    [0, -1],
                     [1, 1],
                     [-1, 1],
                     [1, -1],
@@ -105,4 +113,4 @@ enum CardTypes {
     Empty = "Empty"
 }
 
-export { Position, Pos, CardDef, CardType, CardTypes }
+export { Position, Pos, CardDef, CardType, CardTypes, Add }
