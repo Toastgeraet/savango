@@ -5,8 +5,12 @@ import { Add, CardDef, CardType, CardTypes, Pos } from './helpers/helpers';
 
 function onTapCard(boardPos: [number, number], card: CardDef) {
     return function (direction: any, event: any) {
-        // console.log(direction, event);
-        // console.log(...boardPos);
+        
+        if ([...selectedCard].every((num, idx) => boardPos[idx] == num)) {
+            selectedCard.splice(0, 2, -1, -1);
+            validMoveTargets.splice(0, validMoveTargets.length);
+            return;
+        }
 
         if (currentPlayer.value == getCardOwner(card)) {
             selectedCard.splice(0, 2, ...boardPos);
