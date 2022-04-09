@@ -103,8 +103,8 @@ function passTurn() {
 
 function checkWinCondition() {
     if (lastCardTaken.value.type == CardTypes.Lion) {
+        isGameOver.value = true;
         alert(`Player ${getPlayerName(currentPlayer.value)} has won the game!`)
-
     }
 }
 
