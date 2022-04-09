@@ -2,68 +2,81 @@
 import { reactive, ref } from "@vue/reactivity";
 import Card from "./components/Card.vue";
 import {
-  Add,
-  CardDef,
-  CardType,
-  CardTypes,
-  IntersectingPos,
-  Player,
-  Pos,
-  Same,
+    Add,
+    CardDef,
+    CardType,
+    CardTypes,
+    IntersectingPos,
+    Player,
+    Pos,
+    Same,
 } from "./helpers/helpers";
 
 function onTapCard(tappedPos: Pos) {
-  return function (direction: any, event: any) {
-    const card = getCard(tappedPos);
+    return function (direction: any, event: any) {
+        const card = getCard(tappedPos);
 
-    const target = validMoveTargets.find((p) =>
-      [...p].every((num, idx) => tappedPos[idx] == num)
-    );
-    if (target) {
-      const sourceIdx = activePos[0] + activePos[1] * 4;
-      const targetIdx = tappedPos[0] + tappedPos[1] * 4;
-      const flatBoard = boardState.flat();
-      let temp = flatBoard[targetIdx];
-      flatBoard[targetIdx] = flatBoard[sourceIdx];
-      flatBoard[sourceIdx] = temp;
+        const tappedATarget = validMoveTargets.find((p) => Same(p, tappedPos));
+        if (tappedATarget) {
 
-      boardState.splice(0, boardState.length, ...chunkArray(flatBoard, 4));
+            // Flattening the board makes it easier to manipulate
+            const flatBoard = boardState.flat();
 
-      resetSelectionMarkers();
-      return;
-    }
+            // Calculate flat indices
+            const sourceIdx = activePos[0] + activePos[1] * 4;
+            const targetIdx = tappedPos[0] + tappedPos[1] * 4;
 
-    if (Same(activePos, tappedPos)) {
-      resetSelectionMarkers();
-      return;
-    }
+            const targetCard = getCard(tappedPos);
+            
+            // If opponent, replace with empty card
+            if(isOpponent(targetCard)) {
+                flatBoard[targetIdx] = new CardDef(CardTypes.Empty, Player.None);
+            }
 
-    if (isPlayer(card)) {
-      const moves = getCardMoves(card, tappedPos);
-      activePos.splice(0, 2, ...tappedPos);
-      validMoveTargets.splice(0, validMoveTargets.length, ...moves);
-      return;
-    }
-  };
+            // Swap active and target cards
+            let temp = flatBoard[targetIdx];
+            flatBoard[targetIdx] = flatBoard[sourceIdx];
+            flatBoard[sourceIdx] = temp;
+            
+
+            // Recreate original board dimensions
+            boardState.splice(0, boardState.length, ...chunkArray(flatBoard, 4));
+    
+            resetSelectionMarkers();
+            return;
+        }
+
+        if (Same(activePos, tappedPos)) {
+            resetSelectionMarkers();
+            return;
+        }
+
+        if (isPlayer(card)) {
+            const moves = getCardMoves(card, tappedPos);
+            activePos.splice(0, 2, ...tappedPos);
+            validMoveTargets.splice(0, validMoveTargets.length, ...moves);
+            return;
+        }
+    };
 }
 
 function resetSelectionMarkers() {
-  activePos.splice(0, 2, -1, -1);
-  validMoveTargets.splice(0, validMoveTargets.length);
+    activePos.splice(0, 2, -1, -1);
+    validMoveTargets.splice(0, validMoveTargets.length);
 }
 
 function chunkArray<T>(array: T[], chunkSize: number): T[][] {
-  return array.reduce((resultArray: T[][], item: T, index) => {
-    const chunkIndex = Math.floor(index / chunkSize);
+    return array.reduce((resultArray: T[][], item: T, index) => {
+        const chunkIndex = Math.floor(index / chunkSize);
 
-    if (!resultArray[chunkIndex]) {
-      resultArray[chunkIndex] = []; // start a new chunk
-    }
+        if (!resultArray[chunkIndex]) {
+            resultArray[chunkIndex] = []; // start a new chunk
+        }
 
-    resultArray[chunkIndex].push(item);
+        resultArray[chunkIndex].push(item);
 
-    return resultArray;
-  }, []);
+        return resultArray;
+    }, []);
 }
 
 const currentPlayer = ref(Player.Blue);
@@ -71,92 +84,92 @@ const activePos = reactive([-1, -1] as Pos);
 const validMoveTargets = reactive([] as Pos[]);
 
 function isOpponent(card: CardDef): boolean {
-  return card.player != currentPlayer.value && card.player != Player.None;
+    return card.player != currentPlayer.value && card.player != Player.None;
 }
 
 function isPlayer(card: CardDef): boolean {
-  return card.player == currentPlayer.value;
+    return card.player == currentPlayer.value;
 }
 
 function getCard(pos: Pos) {
-  return boardState[pos[1]][pos[0]];
+    return boardState[pos[1]][pos[0]];
 }
 
 function isValidMoveTarget(boardPos: Pos): boolean {
-  return validMoveTargets.some((p) => Same(p, boardPos));
+    return validMoveTargets.some((p) => Same(p, boardPos));
 }
 
 function isSelected(boardPos: Pos): boolean {
-  return [...activePos].every((num, idx) => boardPos[idx] == num);
+    return [...activePos].every((num, idx) => boardPos[idx] == num);
 }
 
 function getCardMoves(card: CardDef, cardPos: Pos): Pos[] {
-  return card
-    .getMoves()
-    .map((moveVector) => Add(cardPos, moveVector))
-    .filter((targetPos) => {
+    return card
+        .getMoves()
+        .map((moveVector) => Add(cardPos, moveVector))
+        .filter((targetPos) => {
 
-      if (!targetPos.every((i) => i >= 0 && i < 4)) {
-        return false;
-      }
+            if (!targetPos.every((i) => i >= 0 && i < 4)) {
+                return false;
+            }
 
-      const targetCard = getCard(targetPos);
-      if (isPlayer(targetCard)) {
-        return false;
-      }
+            const targetCard = getCard(targetPos);
+            if (isPlayer(targetCard)) {
+                return false;
+            }
 
-      const jumpPos = IntersectingPos(cardPos, targetPos);
-      const jumpCard = getCard(jumpPos);
-      if (jumpCard !== targetCard) {
-        if (!(jumpCard.type == CardTypes.Empty)) {
-          return false;
-        }
-      }
+            const jumpPos = IntersectingPos(cardPos, targetPos);
+            const jumpCard = getCard(jumpPos);
+            if (jumpCard !== targetCard) {
+                if (!(jumpCard.type == CardTypes.Empty)) {
+                    return false;
+                }
+            }
 
-      return true;
-    });
+            return true;
+        });
 }
 
 const boardState: CardDef[][] = reactive([
-  [
-    new CardDef(CardTypes.Elephant, Player.Red),
-    new CardDef(CardTypes.Lion, Player.Red),
-    new CardDef(CardTypes.Rhino, Player.Red),
-    new CardDef(CardTypes.Giraffe, Player.Red),
-  ],
-  [
-    new CardDef(CardTypes.Zebra, Player.Red),
-    new CardDef(CardTypes.Empty, Player.None),
-    new CardDef(CardTypes.Empty, Player.None),
-    new CardDef(CardTypes.Gnu, Player.Red),
-  ],
-  [
-    new CardDef(CardTypes.Zebra, Player.Blue),
-    new CardDef(CardTypes.Empty, Player.None),
-    new CardDef(CardTypes.Empty, Player.None),
-    new CardDef(CardTypes.Gnu, Player.Blue),
-  ],
-  [
-    new CardDef(CardTypes.Elephant, Player.Blue),
-    new CardDef(CardTypes.Lion, Player.Blue),
-    new CardDef(CardTypes.Rhino, Player.Blue),
-    new CardDef(CardTypes.Giraffe, Player.Blue),
-  ],
+    [
+        new CardDef(CardTypes.Elephant, Player.Red),
+        new CardDef(CardTypes.Lion, Player.Red),
+        new CardDef(CardTypes.Rhino, Player.Red),
+        new CardDef(CardTypes.Giraffe, Player.Red),
+    ],
+    [
+        new CardDef(CardTypes.Zebra, Player.Red),
+        new CardDef(CardTypes.Empty, Player.None),
+        new CardDef(CardTypes.Empty, Player.None),
+        new CardDef(CardTypes.Gnu, Player.Red),
+    ],
+    [
+        new CardDef(CardTypes.Zebra, Player.Blue),
+        new CardDef(CardTypes.Empty, Player.None),
+        new CardDef(CardTypes.Empty, Player.None),
+        new CardDef(CardTypes.Gnu, Player.Blue),
+    ],
+    [
+        new CardDef(CardTypes.Elephant, Player.Blue),
+        new CardDef(CardTypes.Lion, Player.Blue),
+        new CardDef(CardTypes.Rhino, Player.Blue),
+        new CardDef(CardTypes.Giraffe, Player.Blue),
+    ],
 ]);
 </script>
 
 <template>
-  <div v-for="(row, r) in boardState">
-    <Card
-      v-for="(card, c) in row"
-      :player="card.player"
-      :type="card.type"
-      :selected="isSelected([c, r])"
-      :target="isValidMoveTarget([c, r])"
-      :pos="[c, r]"
-      v-touch:tap="onTapCard([c, r])"
-    ></Card>
-  </div>
+    <div v-for="(row, r) in boardState">
+        <Card
+            v-for="(card, c) in row"
+            :player="card.player"
+            :type="card.type"
+            :selected="isSelected([c, r])"
+            :target="isValidMoveTarget([c, r])"
+            :pos="[c, r]"
+            v-touch:tap="onTapCard([c, r])"
+        ></Card>
+    </div>
 </template>
 
 <style></style>
