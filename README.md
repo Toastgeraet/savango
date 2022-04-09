@@ -1,6 +1,20 @@
 # Deployment to GitHub Pages
 
+## Switch to local deploy branch
+
+Optionally create branch.
+```bash
+git checkout -b dist
+```
+
+Or just merge main branch
+```bash
+git checkout dist
+git merge main
+```
+
 ## Build (Git Bash)
+`--base` is used for repo name
 ```bash
 MSYS_NO_PATHCONV=1 ./node_modules/vite/bin/vite.js build --base='/savango/'
 ```
