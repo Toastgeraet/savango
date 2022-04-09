@@ -29,6 +29,7 @@ function onTapCard(tappedPos: Pos) {
 
             // If opponent, replace with empty card
             if (isOpponent(targetCard)) {
+                lastCardTaken.value = flatBoard[targetIdx];
                 flatBoard[targetIdx] = new CardDef(CardTypes.Empty, Player.None);
             }
 
@@ -42,6 +43,8 @@ function onTapCard(tappedPos: Pos) {
             boardState.splice(0, boardState.length, ...chunkArray(flatBoard, 4));
 
             resetSelectionMarkers();
+
+            passTurn();
             return;
         }
 
@@ -89,17 +92,21 @@ function getPlayerName(pl: Player) {
     }
 }
 
-setInterval(() => {
+function passTurn() {
+    checkWinCondition()
     if (currentPlayer.value == Player.Blue) {
         currentPlayer.value = Player.Red
     } else {
         currentPlayer.value = Player.Blue
     }
-}, 6000)
+}
 
-const currentPlayer = ref(Player.Blue);
-const activePos = reactive([-1, -1] as Pos);
-const validMoveTargets = reactive([] as Pos[]);
+function checkWinCondition() {
+    if (lastCardTaken.value.type == CardTypes.Lion) {
+        alert(`Player ${getPlayerName(currentPlayer.value)} has won the game!`)
+
+    }
+}
 
 function isOpponent(card: CardDef): boolean {
     return card.player != currentPlayer.value && card.player != Player.None;
@@ -127,7 +134,7 @@ function getCardMoves(card: CardDef, cardPos: Pos): Pos[] {
         .map((moveVector) => {
             if (card.player == Player.Red) {
                 moveVector = moveVector.map(v => -1 * v) as Pos;
-            } 
+            }
             return Add(cardPos, moveVector)
         })
         .filter((targetPos) => {
@@ -153,7 +160,18 @@ function getCardMoves(card: CardDef, cardPos: Pos): Pos[] {
         });
 }
 
-const boardState: CardDef[][] = reactive([
+function restart() {
+    boardState.splice(0, boardState.length, ...boardSetup);
+    isGameOver.value = false;
+}
+
+const isGameOver = ref(true);
+const currentPlayer = ref(Player.Blue);
+const activePos = reactive([-1, -1] as Pos);
+const validMoveTargets = reactive([] as Pos[]);
+const lastCardTaken = ref(new CardDef(CardTypes.Empty, Player.None));
+
+const boardSetup: CardDef[][] = [
     [
         new CardDef(CardTypes.Elephant, Player.Red),
         new CardDef(CardTypes.Lion, Player.Red),
@@ -177,7 +195,11 @@ const boardState: CardDef[][] = reactive([
         new CardDef(CardTypes.Lion, Player.Blue),
         new CardDef(CardTypes.Rhino, Player.Blue),
         new CardDef(CardTypes.Giraffe, Player.Blue),
-    ],
+    ]
+];
+
+const boardState: CardDef[][] = reactive([
+
 ]);
 </script>
 
@@ -192,6 +214,7 @@ const boardState: CardDef[][] = reactive([
             }"
         >{{ getPlayerName(currentPlayer) }}</span>'s turn
     </h1>
+    <button @click="restart()" :class="{ hidden: !isGameOver }">Start a new game!</button>
     <div v-for="(row, r) in boardState">
         <Card
             v-for="(card, c) in row"
@@ -210,6 +233,10 @@ const boardState: CardDef[][] = reactive([
 
 h1 span {
     font-size: 1.5em;
+}
+
+.hidden {
+    display: none;
 }
 
 .stroked {
