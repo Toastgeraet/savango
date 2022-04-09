@@ -4,7 +4,6 @@ import Card from "./components/Card.vue";
 import {
     Add,
     CardDef,
-    CardType,
     CardTypes,
     IntersectingPos,
     Player,
@@ -125,7 +124,12 @@ function isSelected(boardPos: Pos): boolean {
 function getCardMoves(card: CardDef, cardPos: Pos): Pos[] {
     return card
         .getMoves()
-        .map((moveVector) => Add(cardPos, moveVector))
+        .map((moveVector) => {
+            if (card.player == Player.Red) {
+                moveVector = moveVector.map(v => -1 * v) as Pos;
+            } 
+            return Add(cardPos, moveVector)
+        })
         .filter((targetPos) => {
 
             if (!targetPos.every((i) => i >= 0 && i < 4)) {
