@@ -5,11 +5,11 @@ import Elephant from "../assets/Elephant.png";
 import Zebra from "../assets/Zebra.png";
 import Gnu from "../assets/Gnu.png";
 import Giraffe from "../assets/Giraffe.png";
-import { Pos } from "../helpers/helpers";
+import { Player, Pos } from "../helpers/helpers";
 
 const props = defineProps<{
     type: string,
-    player: number,
+    player: Player,
     selected: boolean,
     target: boolean,
     pos: Pos
@@ -31,9 +31,9 @@ function getSrc(name: string) {
     <div
         class="card bg"
         :class="{
-            upsideDown: player == 2,
-            empty: player == 0,
-            own: player == 1,
+            upsideDown: player == Player.Red,
+            empty: player == Player.None,
+            own: player == Player.Blue,
             selected: selected,
             target: target
         }"
