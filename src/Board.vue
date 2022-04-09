@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { reactive, ref } from '@vue/reactivity';
 import Card from './components/Card.vue';
-import { Add, CardDef, CardType, CardTypes, Pos } from './helpers/helpers';
+import { Add, CardDef, CardType, CardTypes, IntersectingPos, Pos } from './helpers/helpers';
 
 function onTapCard(boardPos: Pos) {
     return function (direction: any, event: any) {
-        const card = boardState[boardPos[1]][boardPos[0]];
-        console.log(boardPos, card);
-        
+        const card = getCard(boardPos);
+        //console.log(boardPos, card);
+
         const target = validMoveTargets.find(p => [...p].every((num, idx) => boardPos[idx] == num));
         if (target) {
             const sourceIdx = selectedCard[0] + selectedCard[1] * 4;
@@ -16,7 +16,7 @@ function onTapCard(boardPos: Pos) {
             let temp = flatBoard[targetIdx];
             flatBoard[targetIdx] = flatBoard[sourceIdx];
             flatBoard[sourceIdx] = temp;
-                        
+
             boardState.splice(0, boardState.length, ...chunkArray(flatBoard, 4));
 
             selectedCard.splice(0, 2, -1, -1);
@@ -60,6 +60,10 @@ const currentPlayer = ref(1);
 const selectedCard = reactive([-1, -1]);
 const validMoveTargets = reactive([] as Pos[])
 
+function getCard(pos: Pos) {
+    return boardState[pos[1]][pos[0]];
+}
+
 function isValidMoveTarget(boardPos: Pos): boolean {
     return validMoveTargets.some(p => [...p].every((num, idx) => boardPos[idx] == num));
 }
@@ -72,8 +76,32 @@ function getCardOwner(card: CardDef) {
     return card.type == CardTypes.Empty ? 0 : (card?.isOpponent ? 2 : 1);
 }
 
-function getCardMoves(card: CardDef, boardPos: Pos): Pos[] {
-    return card.getMoves().map(moveVector => Add(boardPos, moveVector)).filter(p => p.every(i => i >= 0 && i < 4));
+function getCardMoves(card: CardDef, cardPos: Pos): Pos[] {
+    return card.getMoves().map(moveVector => Add(cardPos, moveVector)).filter(targetPos => {
+
+        if (!targetPos.every(i => i >= 0 && i < 4)) {
+            return false;
+        };
+
+
+        const targetCard = getCard(targetPos);
+        if (!(targetCard.type == CardTypes.Empty || (targetCard.isOpponent ?? false))) {
+            return false;
+        }
+
+        //console.log("getMoves", cardPos, targetPos);
+
+        const jumpPos = IntersectingPos(cardPos, targetPos);
+        const jumpCard = getCard(jumpPos);
+        if (jumpCard !== targetCard) {
+            if (!(jumpCard.type == CardTypes.Empty)) {
+                return false;
+
+            }
+        }
+
+        return true;
+    });
 }
 
 const boardState: (CardDef)[][] = reactive([
@@ -112,7 +140,7 @@ const boardState: (CardDef)[][] = reactive([
             :type="card.type"
             :selected="isSelected([c, r])"
             :target="isValidMoveTarget([c, r])"
-            :pos="[c, r]"            
+            :pos="[c, r]"
             v-touch:tap="onTapCard([c, r])"
         ></Card>
     </div>
