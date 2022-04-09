@@ -13,6 +13,11 @@ import {
 
 function onTapCard(tappedPos: Pos) {
     return function (direction: any, event: any) {
+
+        if(isGameOver.value) {
+            return;
+        }
+
         const card = getCard(tappedPos);
 
         const tappedATarget = validMoveTargets.find((p) => Same(p, tappedPos));
@@ -103,8 +108,7 @@ function passTurn() {
 
 function checkWinCondition() {
     if (lastCardTaken.value.type == CardTypes.Lion) {
-        isGameOver.value = true;
-        alert(`Player ${getPlayerName(currentPlayer.value)} has won the game!`)
+        isGameOver.value = true;        
     }
 }
 
@@ -163,6 +167,7 @@ function getCardMoves(card: CardDef, cardPos: Pos): Pos[] {
 function restart() {
     boardState.splice(0, boardState.length, ...boardSetup);
     isGameOver.value = false;
+    lastCardTaken.value = new CardDef(CardTypes.Empty, Player.None);
 }
 
 const isGameOver = ref(true);
@@ -170,6 +175,7 @@ const currentPlayer = ref(Player.Blue);
 const activePos = reactive([-1, -1] as Pos);
 const validMoveTargets = reactive([] as Pos[]);
 const lastCardTaken = ref(new CardDef(CardTypes.Empty, Player.None));
+const lastWinner = ref(Player.None);
 
 const boardSetup: CardDef[][] = [
     [
@@ -204,7 +210,7 @@ const boardState: CardDef[][] = reactive([
 </script>
 
 <template>
-    <h1>
+    <h1 :class="{hidden: isGameOver}">
         It's
         <span
             class="stroked"
@@ -214,6 +220,14 @@ const boardState: CardDef[][] = reactive([
             }"
         >{{ getPlayerName(currentPlayer) }}</span>'s turn
     </h1>
+    <h1 :class="{hidden: !isGameOver || lastWinner == Player.None}"><span
+            class="stroked"
+            :class="{
+                redPlayerColor: currentPlayer == Player.Red,
+                bluePlayerColor: currentPlayer == Player.Blue,
+            }"
+        >{{ getPlayerName(lastWinner) }}</span> has won the game!</h1>
+    <h1 :class="{hidden: lastWinner != Player.None}">Savango</h1>
     <button @click="restart()" :class="{ hidden: !isGameOver }">Start a new game!</button>
     <div v-for="(row, r) in boardState">
         <Card
