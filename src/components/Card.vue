@@ -47,6 +47,7 @@ function getSrc(name: string) {
 </template>
 
 <style lang="scss" scoped>
+@import "../main.scss";
 $cardSize: 200px;
 
 .card {
@@ -77,13 +78,13 @@ $cardSize: 200px;
 }
 
 .own {
-    background-color: rgb(121, 128, 228);
+    background-color: $playerColorBlue;
 }
 
 /** this flips everything upside down */
 .upsideDown {
     transform: scaleY(-1);
-    background-color: rgb(231, 85, 85);
+    background-color: $playerColorRed;
 }
 
 .empty {

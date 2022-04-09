@@ -1,0 +1,10 @@
+$playerColorBlue: rgb(121, 128, 228);
+$playerColorRed: rgb(231, 85, 85);
+
+.redPlayerColor {
+    color: $playerColorRed;
+}
+
+.bluePlayerColor {
+    color: $playerColorBlue;
+}

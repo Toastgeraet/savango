@@ -27,9 +27,9 @@ function onTapCard(tappedPos: Pos) {
             const targetIdx = tappedPos[0] + tappedPos[1] * 4;
 
             const targetCard = getCard(tappedPos);
-            
+
             // If opponent, replace with empty card
-            if(isOpponent(targetCard)) {
+            if (isOpponent(targetCard)) {
                 flatBoard[targetIdx] = new CardDef(CardTypes.Empty, Player.None);
             }
 
@@ -37,11 +37,11 @@ function onTapCard(tappedPos: Pos) {
             let temp = flatBoard[targetIdx];
             flatBoard[targetIdx] = flatBoard[sourceIdx];
             flatBoard[sourceIdx] = temp;
-            
+
 
             // Recreate original board dimensions
             boardState.splice(0, boardState.length, ...chunkArray(flatBoard, 4));
-    
+
             resetSelectionMarkers();
             return;
         }
@@ -78,6 +78,25 @@ function chunkArray<T>(array: T[], chunkSize: number): T[][] {
         return resultArray;
     }, []);
 }
+
+function getPlayerName(pl: Player) {
+    switch (currentPlayer.value) {
+        case Player.Blue:
+            return "Blue"
+        case Player.Red:
+            return "Red"
+        case Player.None:
+            return "None"
+    }
+}
+
+setInterval(() => {
+    if (currentPlayer.value == Player.Blue) {
+        currentPlayer.value = Player.Red
+    } else {
+        currentPlayer.value = Player.Blue
+    }
+}, 6000)
 
 const currentPlayer = ref(Player.Blue);
 const activePos = reactive([-1, -1] as Pos);
@@ -159,6 +178,16 @@ const boardState: CardDef[][] = reactive([
 </script>
 
 <template>
+    <h1>
+        It's
+        <span
+            class="stroked"
+            :class="{
+                redPlayerColor: currentPlayer == Player.Red,
+                bluePlayerColor: currentPlayer == Player.Blue,
+            }"
+        >{{ getPlayerName(currentPlayer) }}</span>'s turn
+    </h1>
     <div v-for="(row, r) in boardState">
         <Card
             v-for="(card, c) in row"
@@ -172,4 +201,15 @@ const boardState: CardDef[][] = reactive([
     </div>
 </template>
 
-<style></style>
+<style lang="scss" scoped>
+@import "./main.scss";
+
+h1 span {
+    font-size: 1.5em;
+}
+
+.stroked {
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+        1px 1px 0 #000;
+}
+</style>
