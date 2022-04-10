@@ -14,7 +14,7 @@ import {
 function onTapCard(tappedPos: Pos) {
     return function (direction: any, event: any) {
 
-        if(isGameOver.value) {
+        if (isGameOver.value) {
             return;
         }
 
@@ -87,7 +87,7 @@ function chunkArray<T>(array: T[], chunkSize: number): T[][] {
 }
 
 function getPlayerName(pl: Player) {
-    switch (currentPlayer.value) {
+    switch (pl) {
         case Player.Blue:
             return "Blue"
         case Player.Red:
@@ -108,7 +108,8 @@ function passTurn() {
 
 function checkWinCondition() {
     if (lastCardTaken.value.type == CardTypes.Lion) {
-        isGameOver.value = true;        
+        isGameOver.value = true;
+        lastWinner.value = currentPlayer.value;
     }
 }
 
@@ -210,7 +211,7 @@ const boardState: CardDef[][] = reactive([
 </script>
 
 <template>
-    <h1 :class="{hidden: isGameOver}">
+    <h1 :class="{ hidden: isGameOver }">
         It's
         <span
             class="stroked"
@@ -220,15 +221,23 @@ const boardState: CardDef[][] = reactive([
             }"
         >{{ getPlayerName(currentPlayer) }}</span>'s turn
     </h1>
-    <h1 :class="{hidden: !isGameOver || lastWinner == Player.None}"><span
+
+    <h1>{{ isGameOver ? "GameOver" : "GameRunning" }}</h1>
+
+    <h1 :class="{ hidden: (!isGameOver) || lastWinner == Player.None }">
+        <span
             class="stroked"
             :class="{
-                redPlayerColor: currentPlayer == Player.Red,
-                bluePlayerColor: currentPlayer == Player.Blue,
+                redPlayerColor: lastWinner == Player.Red,
+                bluePlayerColor: lastWinner == Player.Blue,
             }"
-        >{{ getPlayerName(lastWinner) }}</span> has won the game!</h1>
-    <h1 :class="{hidden: lastWinner != Player.None}">Savango</h1>
-    <button @click="restart()" :class="{ hidden: !isGameOver }">Start a new game!</button>
+        >{{ getPlayerName(lastWinner) }}</span> has won the game!
+    </h1>
+
+    <button @click="restart()" :class="{ hidden: !isGameOver }">
+        <h1 :class="{ hidden: !isGameOver }">Start a new game of Savango!</h1>
+    </button>
+
     <div v-for="(row, r) in boardState">
         <Card
             v-for="(card, c) in row"
