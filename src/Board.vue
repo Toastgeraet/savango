@@ -4,7 +4,7 @@ import Card from "./components/Card.vue";
 import {
     Add,
     CardDef,
-    CardTypes,
+    CardType,
     IntersectingPos,
     Player,
     Pos,
@@ -35,7 +35,11 @@ function onTapCard(tappedPos: Pos) {
             // If opponent, replace with empty card
             if (isOpponent(targetCard)) {
                 lastCardTaken.value = flatBoard[targetIdx];
-                flatBoard[targetIdx] = new CardDef(CardTypes.Empty, Player.None);
+                flatBoard[targetIdx] = new CardDef(CardType.Empty, Player.None);
+
+                
+                const capturedCard = new CardDef(lastCardTaken.value.type, currentPlayer.value);                
+                capturedCards[getPlayerName(currentPlayer.value) as any].push(capturedCard)
             }
 
             // Swap active and target cards
@@ -65,6 +69,11 @@ function onTapCard(tappedPos: Pos) {
             return;
         }
     };
+}
+
+function onTapCapturedCard(card: CardDef) {
+    return function (direction: any, event: any) {
+    }
 }
 
 function resetSelectionMarkers() {
@@ -107,7 +116,7 @@ function passTurn() {
 }
 
 function checkWinCondition() {
-    if (lastCardTaken.value.type == CardTypes.Lion) {
+    if (lastCardTaken.value.type == CardType.Lion) {
         isGameOver.value = true;
         lastWinner.value = currentPlayer.value;
     }
@@ -156,7 +165,7 @@ function getCardMoves(card: CardDef, cardPos: Pos): Pos[] {
             const jumpPos = IntersectingPos(cardPos, targetPos);
             const jumpCard = getCard(jumpPos);
             if (jumpCard !== targetCard) {
-                if (!(jumpCard.type == CardTypes.Empty)) {
+                if (!(jumpCard.type == CardType.Empty)) {
                     return false;
                 }
             }
@@ -168,40 +177,49 @@ function getCardMoves(card: CardDef, cardPos: Pos): Pos[] {
 function restart() {
     boardState.splice(0, boardState.length, ...boardSetup);
     isGameOver.value = false;
-    lastCardTaken.value = new CardDef(CardTypes.Empty, Player.None);
+    lastCardTaken.value = new CardDef(CardType.Empty, Player.None);
 }
 
 const isGameOver = ref(true);
 const currentPlayer = ref(Player.Blue);
 const activePos = reactive([-1, -1] as Pos);
 const validMoveTargets = reactive([] as Pos[]);
-const lastCardTaken = ref(new CardDef(CardTypes.Empty, Player.None));
+const lastCardTaken = ref(new CardDef(CardType.Empty, Player.None));
 const lastWinner = ref(Player.None);
+
+
+//todo how to type this
+const capturedCards: any = reactive({
+    "Red": [] as CardDef[],
+    "Blue": [] as CardDef[]
+});
+
+
 
 const boardSetup: CardDef[][] = [
     [
-        new CardDef(CardTypes.Elephant, Player.Red),
-        new CardDef(CardTypes.Lion, Player.Red),
-        new CardDef(CardTypes.Rhino, Player.Red),
-        new CardDef(CardTypes.Giraffe, Player.Red),
+        new CardDef(CardType.Elephant, Player.Red),
+        new CardDef(CardType.Lion, Player.Red),
+        new CardDef(CardType.Rhino, Player.Red),
+        new CardDef(CardType.Giraffe, Player.Red),
     ],
     [
-        new CardDef(CardTypes.Zebra, Player.Red),
-        new CardDef(CardTypes.Empty, Player.None),
-        new CardDef(CardTypes.Empty, Player.None),
-        new CardDef(CardTypes.Gnu, Player.Red),
+        new CardDef(CardType.Zebra, Player.Red),
+        new CardDef(CardType.Empty, Player.None),
+        new CardDef(CardType.Empty, Player.None),
+        new CardDef(CardType.Gnu, Player.Red),
     ],
     [
-        new CardDef(CardTypes.Zebra, Player.Blue),
-        new CardDef(CardTypes.Empty, Player.None),
-        new CardDef(CardTypes.Empty, Player.None),
-        new CardDef(CardTypes.Gnu, Player.Blue),
+        new CardDef(CardType.Zebra, Player.Blue),
+        new CardDef(CardType.Empty, Player.None),
+        new CardDef(CardType.Empty, Player.None),
+        new CardDef(CardType.Gnu, Player.Blue),
     ],
     [
-        new CardDef(CardTypes.Elephant, Player.Blue),
-        new CardDef(CardTypes.Lion, Player.Blue),
-        new CardDef(CardTypes.Rhino, Player.Blue),
-        new CardDef(CardTypes.Giraffe, Player.Blue),
+        new CardDef(CardType.Elephant, Player.Blue),
+        new CardDef(CardType.Lion, Player.Blue),
+        new CardDef(CardType.Rhino, Player.Blue),
+        new CardDef(CardType.Giraffe, Player.Blue),
     ]
 ];
 
@@ -222,7 +240,7 @@ const boardState: CardDef[][] = reactive([
         >{{ getPlayerName(currentPlayer) }}</span>'s turn
     </h1>
 
-    <h1>{{ isGameOver ? "GameOver" : "GameRunning" }}</h1>
+    <!-- <h1>{{ isGameOver ? "GameOver" : "GameRunning" }}</h1> -->
 
     <h1 :class="{ hidden: (!isGameOver) || lastWinner == Player.None }">
         <span
@@ -245,9 +263,41 @@ const boardState: CardDef[][] = reactive([
             :type="card.type"
             :selected="isSelected([c, r])"
             :target="isValidMoveTarget([c, r])"
-            :pos="[c, r]"
             v-touch:tap="onTapCard([c, r])"
+            :captured="card.captured"
         ></Card>
+    </div>
+
+    <div class="flex">
+        <div>
+            <h2 :class="{ hidden: isGameOver }">
+                <span class="stroked bluePlayerColor">{{ getPlayerName(Player.Blue) }}</span>'s captured cards
+            </h2>
+            <Card
+                v-for="(card) in capturedCards.Blue"
+                :player="card.player"
+                :type="card.type"
+                :selected="false"
+                :target="false"
+                v-touch:tap="onTapCapturedCard(card)"
+                :captured="card.captured"
+            ></Card>
+        </div>
+
+        <div>
+            <h2 :class="{ hidden: isGameOver }">
+                <span class="stroked redPlayerColor">{{ getPlayerName(Player.Red) }}</span>'s captured cards
+            </h2>
+            <Card
+                v-for="(card) in capturedCards.Red"
+                :player="card.player"
+                :type="card.type"
+                :selected="false"
+                :target="false"
+                v-touch:tap="onTapCapturedCard(card)"
+                :captured="card.captured"
+            ></Card>
+        </div>
     </div>
 </template>
 
@@ -260,6 +310,10 @@ h1 span {
 
 .hidden {
     display: none;
+}
+.flex{
+    display: flex;
+    justify-content: space-evenly;
 }
 
 .stroked {

@@ -1,4 +1,4 @@
-export { Position, Pos, CardDef, CardType, CardTypes, Player, Add, Same, IntersectingPos }
+export { Position, Pos, CardDef, CardType, Player, PlayerType, Add, Same, IntersectingPos }
 interface Position {
     x: number,
     y: number
@@ -6,6 +6,7 @@ interface Position {
 
 type Pos = [number, number];
 
+type PlayerType = "None" | "Red" | "Blue";
 enum Player {
     None,
     Blue,
@@ -30,16 +31,18 @@ function IntersectingPos(src: Pos, target: Pos): Pos {
 class CardDef {
     player: Player;
     type: CardType;
+    captured: boolean = false;
 
-    constructor(type: CardType, player: Player) {
+    constructor(type: CardType, player: Player, captured: boolean = false) {
         this.player = player;
         this.type = type;
+        this.captured = true;
     }
 
     getMoves(): Pos[] {
         let moves: Pos[] = [];
         switch (this.type) {
-            case CardTypes.Zebra:
+            case CardType.Zebra:
                 moves = [
                     [1, 1],
                     [-1, 1],
@@ -47,7 +50,7 @@ class CardDef {
                     [-1, -1],
                 ]
                 break;
-            case CardTypes.Elephant:
+            case CardType.Elephant:
                 moves = [
                     [2, 0],
                     [-2, 0],
@@ -59,7 +62,7 @@ class CardDef {
                     [0, -1],
                 ]
                 break;
-            case CardTypes.Lion:
+            case CardType.Lion:
                 moves = [
                     [1, 1],
                     [-1, 1],
@@ -71,7 +74,7 @@ class CardDef {
                     [0, -1],
                 ]
                 break;
-            case CardTypes.Rhino:
+            case CardType.Rhino:
                 moves = [
                     [2, 0],
                     [-2, 0],
@@ -87,7 +90,7 @@ class CardDef {
                     [-1, -1],
                 ]
                 break;
-            case CardTypes.Giraffe:
+            case CardType.Giraffe:
                 moves = [
                     [0, -1],
                     [1, 1],
@@ -100,7 +103,7 @@ class CardDef {
                     [-2, -2],
                 ]
                 break;
-            case CardTypes.Gnu:
+            case CardType.Gnu:
                 moves = [
                     [1, 0],
                     [-1, 0],
@@ -119,8 +122,7 @@ class CardDef {
 
 
 
-type CardType = "Lion" | "Rhino" | "Giraffe" | "Gnu" | "Elephant" | "Zebra" | "Empty"
-enum CardTypes {
+enum CardType {
     Lion = "Lion",
     Rhino = "Rhino",
     Giraffe = "Giraffe",

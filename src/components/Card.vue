@@ -12,7 +12,7 @@ const props = defineProps<{
     player: Player,
     selected: boolean,
     target: boolean,
-    pos: Pos
+    captured: boolean
     }>();
 
 function getSrc(name: string) {
@@ -35,7 +35,8 @@ function getSrc(name: string) {
             empty: player == Player.None,
             own: player == Player.Blue,
             selected: selected,
-            target: target
+            target: target,
+            captured: captured
         }"
         :style="{ backgroundImage: `url(${getSrc(type)})` }"
     >
@@ -49,6 +50,7 @@ function getSrc(name: string) {
 <style lang="scss" scoped>
 @import "../main.scss";
 $cardSize: 200px;
+$capturedSize: 150px;
 
 .card {
     margin: 5px;
@@ -60,6 +62,12 @@ $cardSize: 200px;
     padding: 30px;
     box-sizing: border-box;
     cursor: pointer;
+}
+
+.card.captured {
+    height: $cardSize;
+    width: $cardSize;
+    border-radius: 15px;
 }
 
 .selected {
