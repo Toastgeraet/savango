@@ -1,10 +1,4 @@
-export { Position, Pos, CardDef, CardType, Player, PlayerType, Add, Same, IntersectingPos }
-interface Position {
-    x: number,
-    y: number
-}
-
-type Pos = [number, number];
+export { Pos, CardDef, CardType, Player, PlayerType, Add, Same, IntersectingPos }
 
 type PlayerType = "None" | "Red" | "Blue";
 enum Player {
@@ -13,8 +7,10 @@ enum Player {
     Red,
 }
 
+type Pos = [number, number];
+
 function Same(p1: Pos, p2: Pos): boolean {
-    return [...p1].every((num, idx) => p2[idx] == num)
+    return p1.every((num, idx) => p2[idx] == num)
 }
 
 function Add(...p: Pos[]): Pos {
@@ -24,7 +20,7 @@ function Add(...p: Pos[]): Pos {
 function IntersectingPos(src: Pos, target: Pos): Pos {
     let moveVec = [target[0] - src[0], target[1] - src[1]]
     let normalizedMoveVec: Pos = [moveVec[0] == 0 ? 0 : Math.sign(moveVec[0]) * moveVec[0] / moveVec[0], moveVec[1] == 0 ? 0 : Math.sign(moveVec[1]) * moveVec[1] / moveVec[1]]
-
+    
     return Add(src, normalizedMoveVec);
 }
 

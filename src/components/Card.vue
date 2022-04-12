@@ -5,7 +5,7 @@ import Elephant from "../assets/Elephant.png";
 import Zebra from "../assets/Zebra.png";
 import Gnu from "../assets/Gnu.png";
 import Giraffe from "../assets/Giraffe.png";
-import { Player, Pos } from "../helpers/helpers";
+import { Player } from "../helpers/helpers";
 
 const props = defineProps<{
     type: string,
@@ -42,7 +42,6 @@ function getSrc(name: string) {
     >
         <div class="centerContent">
             <h1>{{ type }}</h1>
-            <h1>{{ player }}</h1>
         </div>
     </div>
 </template>
