@@ -48,8 +48,7 @@ function getSrc(name: string) {
 
 <style lang="scss" scoped>
 @import "../main.scss";
-$cardSize: 200px;
-$capturedSize: 150px;
+
 
 .card {
     margin: 5px;

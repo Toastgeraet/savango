@@ -229,20 +229,7 @@ const boardState: CardDef[][] = reactive([]);
     <button @click="restart()" :class="{ hidden: !isGameOver }">
         <h1 :class="{ hidden: !isGameOver }">Start a new game of Savango!</h1>
     </button>
-
-    <div v-for="(row, r) in boardState">
-        <Card v-for="(card, c) in row" :player="card.player" :type="card.type" :selected="isSelected([c, r])"
-            :target="isValidMoveTarget([c, r])" v-touch:tap="onTapCard([c, r])" :captured="card.captured"></Card>
-    </div>
-
     <div class="flex">
-        <div>
-            <h2 :class="{ hidden: isGameOver }">
-                <span class="stroked bluePlayerColor">{{ getPlayerName(Player.Blue) }}</span>'s captured cards
-            </h2>
-            <Card v-for="(card) in capturedCards.Blue" :player="card.player" :type="card.type" :selected="false" :target="false"
-                v-touch:tap="onTapCapturedCard(card)" :captured="card.captured"></Card>
-        </div>
 
         <div>
             <h2 :class="{ hidden: isGameOver }">
@@ -251,6 +238,22 @@ const boardState: CardDef[][] = reactive([]);
             <Card v-for="(card) in capturedCards.Red" :player="card.player" :type="card.type" :selected="false" :target="false"
                 v-touch:tap="onTapCapturedCard(card)" :captured="card.captured"></Card>
         </div>
+
+        <div class="mainBoard">
+            <div v-for="(row, r) in boardState">
+                <Card v-for="(card, c) in row" :player="card.player" :type="card.type" :selected="isSelected([c, r])"
+                    :target="isValidMoveTarget([c, r])" v-touch:tap="onTapCard([c, r])" :captured="card.captured"></Card>
+            </div>
+        </div>
+
+        <div>
+            <h2 :class="{ hidden: isGameOver }">
+                <span class="stroked bluePlayerColor">{{ getPlayerName(Player.Blue) }}</span>'s captured cards
+            </h2>
+            <Card v-for="(card) in capturedCards.Blue" :player="card.player" :type="card.type" :selected="false" :target="false"
+                v-touch:tap="onTapCapturedCard(card)" :captured="card.captured"></Card>
+        </div>
+        
     </div>
 </template>
 
@@ -265,8 +268,13 @@ h1 span {
     display: none;
 }
 
+.mainBoard {
+    min-width: calc($cardSize * 4 + 60px);
+}
+
 .flex {
     display: flex;
+    flex-direction: row;
     justify-content: space-evenly;
 }
 
