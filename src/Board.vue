@@ -34,7 +34,7 @@ function onTapCard(tappedPos: Pos) {
             }
 
             // Swap active and target cards            
-            const temp = tappedCard;
+            const temp = boardState[tappedPos[1]][tappedPos[0]];
             boardState[tappedPos[1]][tappedPos[0]] = getCard(activePos);
             boardState[activePos[1]][activePos[0]] = temp;
 
