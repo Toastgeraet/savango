@@ -18,38 +18,29 @@ function onTapCard(tappedPos: Pos) {
             return;
         }
 
-        const card = getCard(tappedPos);
-
-        const tappedATarget = validMoveTargets.find((p) => Same(p, tappedPos));
-        if (tappedATarget) {
-
-            // Flattening the board makes it easier to manipulate
-            const flatBoard = boardState.flat();
-
-            // Calculate flat indices
-            const sourceIdx = activePos[0] + activePos[1] * 4;
-            const targetIdx = tappedPos[0] + tappedPos[1] * 4;
-
-            const targetCard = getCard(tappedPos);
-
+        const tappedCard = getCard(tappedPos);
+        
+        if (validMoveTargets.find((p) => Same(p, tappedPos))) {
+            
+            
             // If opponent, replace with empty card
-            if (isOpponent(targetCard)) {
-                lastCardTaken.value = flatBoard[targetIdx];
-                flatBoard[targetIdx] = new CardDef(CardType.Empty, Player.None);
+            if (isOpponent(tappedCard)) {
+                lastCardTaken.value = tappedCard;
 
+                const emptyCard = new CardDef(CardType.Empty, Player.None);
+                boardState[tappedPos[1]][tappedPos[0]] = emptyCard;
                 
                 const capturedCard = new CardDef(lastCardTaken.value.type, currentPlayer.value);                
                 capturedCards[getPlayerName(currentPlayer.value) as any].push(capturedCard)
             }
 
-            // Swap active and target cards
-            let temp = flatBoard[targetIdx];
-            flatBoard[targetIdx] = flatBoard[sourceIdx];
-            flatBoard[sourceIdx] = temp;
-
+            // Swap active and target cards            
+            const temp = tappedCard;
+            boardState[tappedPos[1]][tappedPos[0]] = getCard(activePos);
+            boardState[activePos[1]][activePos[0]] = temp;
 
             // Recreate original board dimensions
-            boardState.splice(0, boardState.length, ...chunkArray(flatBoard, 4));
+            // boardState.splice(0, boardState.length, ...chunkArray(flatBoard, 4));
 
             resetSelectionMarkers();
 
@@ -62,8 +53,8 @@ function onTapCard(tappedPos: Pos) {
             return;
         }
 
-        if (isPlayer(card)) {
-            const moves = getCardMoves(card, tappedPos);
+        if (isPlayer(tappedCard)) {
+            const moves = getCardMoves(tappedCard, tappedPos);
             activePos.splice(0, 2, ...tappedPos);
             validMoveTargets.splice(0, validMoveTargets.length, ...moves);
             return;
@@ -240,7 +231,7 @@ const boardState: CardDef[][] = reactive([
         >{{ getPlayerName(currentPlayer) }}</span>'s turn
     </h1>
 
-    <!-- <h1>{{ isGameOver ? "GameOver" : "GameRunning" }}</h1> -->
+    <!-- <h1>{{ isGameOver ? "GameOver" : "git stameRunning" }}</h1> -->
 
     <h1 :class="{ hidden: (!isGameOver) || lastWinner == Player.None }">
         <span
