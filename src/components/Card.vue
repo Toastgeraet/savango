@@ -50,6 +50,12 @@ function getSrc(name: string) {
 @import "../main.scss";
 
 
+.card.captured {
+    height: $capturedSize;
+    width: $capturedSize;
+    border-radius: 15px;
+}
+
 .card {
     margin: 5px;
     height: $cardSize;
@@ -60,12 +66,6 @@ function getSrc(name: string) {
     padding: 30px;
     box-sizing: border-box;
     cursor: pointer;
-}
-
-.card.captured {
-    height: $cardSize;
-    width: $cardSize;
-    border-radius: 15px;
 }
 
 .selected {

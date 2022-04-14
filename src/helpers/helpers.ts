@@ -32,7 +32,7 @@ class CardDef {
     constructor(type: CardType, player: Player, captured: boolean = false) {
         this.player = player;
         this.type = type;
-        this.captured = true;
+        this.captured = captured;
     }
 
     getMoves(): Pos[] {

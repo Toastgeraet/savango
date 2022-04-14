@@ -11,14 +11,14 @@ import {
     Same,
 } from "./helpers/helpers";
 
-function onTapCard(tappedPos: Pos) {
+function onTapCard(tappedPos: Pos, tappedCard: CardDef) {
     return function (direction: any, event: any) {
 
         if (isGameOver.value) {
             return;
         }
 
-        const tappedCard = getCard(tappedPos);
+        // const tappedCard = getCard(tappedPos);
 
         if (validMoveTargets.find((p) => Same(p, tappedPos))) {
 
@@ -29,7 +29,7 @@ function onTapCard(tappedPos: Pos) {
                 const emptyCard = new CardDef(CardType.Empty, Player.None);
                 boardState[tappedPos[1]][tappedPos[0]] = emptyCard;
 
-                const capturedCard = new CardDef(lastCardTaken.value.type, currentPlayer.value);
+                const capturedCard = new CardDef(lastCardTaken.value.type, currentPlayer.value, true);
                 capturedCards[getPlayerName(currentPlayer.value) as any].push(capturedCard)
             }
 
@@ -50,10 +50,18 @@ function onTapCard(tappedPos: Pos) {
         }
 
         if (isPlayer(tappedCard)) {
-            const moves = getCardMoves(tappedCard, tappedPos);
-            activePos.splice(0, 2, ...tappedPos);
-            validMoveTargets.splice(0, validMoveTargets.length, ...moves);
-            return;
+            if (tappedCard.captured) {
+                activePos.splice(0, 2, -1, -1);    
+                gameData.activeCard = tappedCard;         
+                console.log("its happening");
+                   
+                validMoveTargets.splice(0, validMoveTargets.length, ...getEmptyStartingPosOfCurrentPlayer());
+            } else {
+                const moves = getCardMoves(tappedCard, tappedPos);
+                activePos.splice(0, 2, ...tappedPos);
+                validMoveTargets.splice(0, validMoveTargets.length, ...moves);
+                return;
+            }
         }
     };
 }
@@ -61,6 +69,16 @@ function onTapCard(tappedPos: Pos) {
 function onTapCapturedCard(card: CardDef) {
     return function (direction: any, event: any) {
     }
+}
+
+function getEmptyStartingPosOfCurrentPlayer() {
+    let pos: Pos[];
+    if (currentPlayer.value == Player.Blue) {
+        pos = [[0, 2], [3, 2], [0, 3], [1, 3], [2, 3], [3, 3]];
+    } else {
+        pos = [[0, 1], [3, 1], [0, 0], [1, 0], [2, 0], [3, 0]];
+    }
+    return pos.filter(p => getCard(p).type == CardType.Empty);
 }
 
 function resetSelectionMarkers() {
@@ -160,10 +178,18 @@ function getCardMoves(card: CardDef, cardPos: Pos): Pos[] {
 }
 
 function restart() {
-    boardState.splice(0, boardState.length, ...boardSetup);
+    boardState.splice(0, boardState.length, ...boardSetup.map(r => r.map(c => (new CardDef(c.type, c.player)))));
     isGameOver.value = false;
     lastCardTaken.value = new CardDef(CardType.Empty, Player.None);
 }
+
+interface GameData {
+    activeCard: CardDef
+}
+
+const gameData: GameData = reactive({
+    activeCard: new CardDef(CardType.Empty, Player.None)
+})
 
 const isGameOver = ref(true);
 const currentPlayer = ref(Player.Blue);
@@ -235,14 +261,14 @@ const boardState: CardDef[][] = reactive([]);
             <h2 :class="{ hidden: isGameOver }">
                 <span class="stroked redPlayerColor">{{ getPlayerName(Player.Red) }}</span>'s captured cards
             </h2>
-            <Card v-for="(card) in capturedCards.Red" :player="card.player" :type="card.type" :selected="false" :target="false"
+            <Card v-for="(card) in capturedCards.Red" :player="card.player" :type="card.type" :selected="card == gameData.activeCard" :target="false"
                 v-touch:tap="onTapCapturedCard(card)" :captured="card.captured"></Card>
         </div>
 
         <div class="mainBoard">
             <div v-for="(row, r) in boardState">
-                <Card v-for="(card, c) in row" :player="card.player" :type="card.type" :selected="isSelected([c, r])"
-                    :target="isValidMoveTarget([c, r])" v-touch:tap="onTapCard([c, r])" :captured="card.captured"></Card>
+                <Card v-for="(card, c) in row" :key="`r${r}c${c}${card.player}${card.type}`" :player="card.player" :type="card.type" :selected="isSelected([c, r])"
+                    :target="isValidMoveTarget([c, r])" v-touch:tap="onTapCard([c, r], card)" :captured="card.captured"></Card>
             </div>
         </div>
 
@@ -250,10 +276,10 @@ const boardState: CardDef[][] = reactive([]);
             <h2 :class="{ hidden: isGameOver }">
                 <span class="stroked bluePlayerColor">{{ getPlayerName(Player.Blue) }}</span>'s captured cards
             </h2>
-            <Card v-for="(card) in capturedCards.Blue" :player="card.player" :type="card.type" :selected="false" :target="false"
+            <Card v-for="(card) in capturedCards.Blue" :player="card.player" :type="card.type" :selected="card == gameData.activeCard" :target="false"
                 v-touch:tap="onTapCapturedCard(card)" :captured="card.captured"></Card>
         </div>
-        
+
     </div>
 </template>
 
