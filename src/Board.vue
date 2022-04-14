@@ -179,6 +179,8 @@ function getCardMoves(card: CardDef, cardPos: Pos): Pos[] {
 
 function restart() {
     boardState.splice(0, boardState.length, ...boardSetup.map(r => r.map(c => (new CardDef(c.type, c.player)))));
+    capturedCards.Red = [];
+    capturedCards.Blue = [];
     isGameOver.value = false;
     lastCardTaken.value = new CardDef(CardType.Empty, Player.None);
 }
